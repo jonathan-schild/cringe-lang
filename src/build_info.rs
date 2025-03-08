@@ -10,7 +10,7 @@ pub fn build_info() -> String {
         env!("CARGO_PKG_NAME")
     );
 
-    let version = if env!("BUILD_HASH").is_empty() {
+    let version = if !env!("BUILD_HASH").is_empty() {
         format!(
             "Version: {}+{}.{} at {}",
             env!("CARGO_PKG_VERSION"),
