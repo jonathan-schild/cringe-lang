@@ -1,0 +1,50 @@
+keywords: namespace, struct, fn, self, if, else, loop, for, in, break, continue, var, val, sizeof, return, int, str, bool
+
+program         ::= scope | struct | function
+
+scope           ::= 'namespace' identifier '{' program '}'
+struct          ::= 'struct' identifier '{' member ( ',' member )* '}'
+function        ::= 'fn' identifier '(' ( member | 'self' ) ( ',' member )* ')' ('->' type)? '{' body '}'
+
+member          ::= identifier ':' type
+type            ::= '*'* ( identifier | 'int' | 'str' | 'bool' ) '[]'*
+identifier      ::= ( '_' | '-' | 'A' - 'Z' | 'a' - 'z' ) ( '0' - '9' | '_' | '-' | 'A' - 'Z' | 'a' - 'z' )*
+literal         ::= '"' ? UTF-8 String ? '"' | '0x' hex_digit ( '_' | hex_digit )* | dec_digit ( '_' | dec_digit )*
+                    | '0o' oct_digit ( '_' | oct_digit )* | '0b' bin_digit ( '_' | bin_digit )*
+
+hex_digit       ::= dec_digit | 'A' - 'F' | 'a' - 'f'
+dec_digit       ::= oct_digit | '8' | '9'
+oct_digit       ::= bin_digit | '2' - '7'
+bin_digit       ::= '0' | '1'
+
+body            ::= statement ( ';' statement )*
+statement       ::= compound | if | loop | for | return | break | continue | var_decl | const_decl | assign
+compound        ::= '{' body '}'
+if              ::= 'if' expression '{' body '}' ( 'else' ( if | '{' body '}' ) )?
+loop            ::= ( "'" identifier ':' )? 'loop' '{' body '}'
+for             ::= ( "'" identifier ':' )? 'for' identifier 'in' expression '{' body '}'
+
+return          ::= 'return' statement? ';'
+break           ::= 'break' identifier? ( statement ';' )?
+continue        ::= 'continue' identifier? ';'
+var_decl        ::= 'var' identifier ( ':' type )? ( '=' statement )? ';'
+const_decl      ::= 'val' identifier ':' type ( '=' statement )? ';'
+assign          ::= '*'* identifier ( '[' expression ']' )* '=' statement ';'
+
+expression      ::= logical_or
+logical_or      ::= logical_and ( '||' logical_and )*
+logical_and     ::= binary_or ( '&&' binary_or )*
+binary_or       ::= binary_xor ( '|' binary_xor )*
+binary_xor      ::= binary_and ( '^' binary_and )*
+binary_and      ::= equal_rel ( '&' equal_rel )*
+equal_rel       ::= ord_rel ( ('==' | '!=' ) ord_rel )*
+ord_rel         ::= bit_op ( ( '<' | '<=' | '>=' | '>' ) bit_op )*
+bit_op          ::= sub_add ( ( '<<' | '>>' ) sub_add )*
+sub_add         ::= mul_div ( ( '+' | '-' ) mul_div )*
+mul_div         ::= unary_op ( ( '*' | '/' | '%' ) unary_op )*
+unary_op        ::= ( '-' | '!' | '*' | '&' | 'sizeof' )? access_op
+access_op       ::= atom ( '[' expression ']'  | '.' identifier | '(' ( expression ( ',' expression )* )? ')' )*
+atom            ::= identifier | '(' expression ')' | literal | initialization
+
+initialization  ::= identifier '{' ( ( identifier ':' )? expression  ( ',' identifier ( ':' expression )? )* )? '}'
+                    | '[' expression ( ',' expression )* ']'

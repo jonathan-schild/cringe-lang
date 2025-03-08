@@ -1,0 +1,49 @@
+1 (Left-to-Right)
+function call ()
+array access []
+member access .
+
+2 (Right-to-Left)
+unary minus -
+not !
+dereference *
+address &
+sizeof
+
+3 (Left-to-Right)
+multiplication *
+division /
+remainder %
+
+4 (Left-to-Right)
+addition +
+subtraction -
+
+5 (Left-to-Right)
+bitwise shift left <<
+bitwise shift right >>
+
+6 (Left-to-Right)
+less <
+less or equal <=
+greater >
+greater or equal >=
+
+7 (Left-to-Right)
+equal ==
+not equal !=
+
+8 (Left-to-Right)
+and &
+
+9 (Left-to-Right)
+xor ^
+
+10 (Left-to-Right)
+or |
+
+11 (Left-to-Right)
+short circuit and &&
+
+12 (Left-to-Right)
+short circuit or ||
