@@ -152,6 +152,12 @@ impl<R: BufRead> Lexer<R> {
                     l: self.token_location.clone(),
                 }
             }
+            '^' => {
+                line.next();
+                Token::Head {
+                    l: self.token_location.clone(),
+                }
+            }
             '{' => {
                 line.next();
                 Token::LBrace {
@@ -196,32 +202,109 @@ impl<R: BufRead> Lexer<R> {
     }
 
     fn scan_composed_punctuation(&mut self, line: &mut Peekable<Chars>) -> Result<Token, Error> {
-        let _ = match line.peek().unwrap() {
-            '!' => Ok(Token::Exclamation {
-                l: self.token_location.clone(),
-            }),
-            '=' => Ok(Token::Equal {
-                l: self.token_location.clone(),
-            }),
-            '&' => Ok(Token::Ampersand {
-                l: self.token_location.clone(),
-            }),
-            '^' => Ok(Token::Head {
-                l: self.token_location.clone(),
-            }),
-            '|' => Ok(Token::Pipe {
-                l: self.token_location.clone(),
-            }),
-            '<' => Ok(Token::LAngle {
-                l: self.token_location.clone(),
-            }),
-            '>' => Ok(Token::RAngle {
-                l: self.token_location.clone(),
-            }),
-
+        match line.peek().unwrap() {
+            '!' => {
+                line.next();
+                let mut token = Ok(Token::Exclamation {
+                    l: self.token_location.clone(),
+                });
+                if let Some(c) = line.peek() {
+                    if *c == '=' {
+                        line.next();
+                        token = Ok(Token::NotEqualOperator {
+                            l: self.token_location.clone(),
+                        });
+                    }
+                }
+                token
+            }
+            '=' => {
+                line.next();
+                let mut token = Ok(Token::Equal {
+                    l: self.token_location.clone(),
+                });
+                if let Some(c) = line.peek() {
+                    if *c == '=' {
+                        line.next();
+                        token = Ok(Token::EqualOperator {
+                            l: self.token_location.clone(),
+                        });
+                    }
+                }
+                token
+            }
+            '&' => {
+                line.next();
+                let mut token = Ok(Token::Ampersand {
+                    l: self.token_location.clone(),
+                });
+                if let Some(c) = line.peek() {
+                    if *c == '&' {
+                        line.next();
+                        token = Ok(Token::LogicalAnd {
+                            l: self.token_location.clone(),
+                        });
+                    }
+                }
+                token
+            }
+            '|' => {
+                line.next();
+                let mut token = Ok(Token::Pipe {
+                    l: self.token_location.clone(),
+                });
+                if let Some(c) = line.peek() {
+                    if *c == '|' {
+                        line.next();
+                        token = Ok(Token::LogicalOr {
+                            l: self.token_location.clone(),
+                        });
+                    }
+                }
+                token
+            }
+            '<' => {
+                line.next();
+                let mut token = Ok(Token::LAngle {
+                    l: self.token_location.clone(),
+                });
+                if let Some(c) = line.peek() {
+                    if *c == '=' {
+                        line.next();
+                        token = Ok(Token::Leq {
+                            l: self.token_location.clone(),
+                        });
+                    } else if *c == '<' {
+                        line.next();
+                        token = Ok(Token::ShiftLeft {
+                            l: self.token_location.clone(),
+                        });
+                    }
+                }
+                token
+            }
+            '>' => {
+                line.next();
+                let mut token = Ok(Token::RAngle {
+                    l: self.token_location.clone(),
+                });
+                if let Some(c) = line.peek() {
+                    if *c == '=' {
+                        line.next();
+                        token = Ok(Token::Geq {
+                            l: self.token_location.clone(),
+                        });
+                    } else if *c == '>' {
+                        line.next();
+                        token = Ok(Token::ShiftRight {
+                            l: self.token_location.clone(),
+                        });
+                    }
+                }
+                token
+            }
             c => Err(Error::UnexpectedSymbol(*c, self.token_location.clone())),
-        };
-        todo!()
+        }
     }
 
     fn scan_int_literal(
@@ -252,7 +335,7 @@ impl<R: BufRead> Lexer<R> {
                 line.next();
             } else if *c == '_' {
                 line.next();
-            } else if c.is_digit(unsafe { radix.unwrap_unchecked() }) {
+            } else if c.is_digit(radix.unwrap()) {
                 str.push(*c);
 
                 line.next();
