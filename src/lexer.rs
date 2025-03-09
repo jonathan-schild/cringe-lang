@@ -44,8 +44,6 @@ impl<R: BufRead> Lexer<R> {
         mut line: Peekable<Chars>,
         token_stream: &mut VecDeque<Token>,
     ) -> Result<(), Error> {
-        self.location.next_line();
-
         while let Some(c) = line.peek() {
             let c = *c; // TODO make it clean
 
@@ -67,7 +65,6 @@ impl<R: BufRead> Lexer<R> {
             } else {
                 match c {
                     _ => {
-                        self.location.next_symbol();
                         line.next();
                         token_stream.push_back(Token::Unknown {
                             l: self.location.clone(),
@@ -86,7 +83,6 @@ impl<R: BufRead> Lexer<R> {
                 break;
             }
 
-            self.location.next_symbol();
             line.next();
         }
     }
@@ -101,28 +97,24 @@ impl<R: BufRead> Lexer<R> {
 
         let token = match c {
             ',' => {
-                self.location.next_symbol();
                 line.next();
                 Token::Comma {
                     l: self.location.clone(),
                 }
             }
             ':' => {
-                self.location.next_symbol();
                 line.next();
                 Token::Colon {
                     l: self.location.clone(),
                 }
             }
             ';' => {
-                self.location.next_symbol();
                 line.next();
                 Token::SemiColon {
                     l: self.location.clone(),
                 }
             }
             '.' => {
-                self.location.next_symbol();
                 line.next();
                 Token::Dot {
                     l: self.location.clone(),
@@ -130,63 +122,54 @@ impl<R: BufRead> Lexer<R> {
             }
 
             '+' => {
-                self.location.next_symbol();
                 line.next();
                 Token::Plus {
                     l: self.location.clone(),
                 }
             }
             '-' => {
-                self.location.next_symbol();
                 line.next();
                 Token::Dash {
                     l: self.location.clone(),
                 }
             }
             '*' => {
-                self.location.next_symbol();
                 line.next();
                 Token::Asterix {
                     l: self.location.clone(),
                 }
             }
             '/' => {
-                self.location.next_symbol();
                 line.next();
                 Token::Slash {
                     l: self.location.clone(),
                 }
             }
             '%' => {
-                self.location.next_symbol();
                 line.next();
                 Token::Percent {
                     l: self.location.clone(),
                 }
             }
             '{' => {
-                self.location.next_symbol();
                 line.next();
                 Token::LBrace {
                     l: self.location.clone(),
                 }
             }
             '}' => {
-                self.location.next_symbol();
                 line.next();
                 Token::RBrace {
                     l: self.location.clone(),
                 }
             }
             '(' => {
-                self.location.next_symbol();
                 line.next();
                 Token::LPar {
                     l: self.location.clone(),
                 }
             }
             ')' => {
-                self.location.next_symbol();
                 line.next();
                 Token::RPar {
                     l: self.location.clone(),
@@ -239,7 +222,7 @@ impl<R: BufRead> Lexer<R> {
         token_stream: &mut VecDeque<Token>,
     ) -> Result<(), Error> {
         let mut str = String::new();
-        self.location.next_symbol();
+
         line.next();
 
         let mut radix = None;
@@ -257,14 +240,13 @@ impl<R: BufRead> Lexer<R> {
                 } else {
                     return Err(Error::UnexpectedSymbol(*c, self.location.clone()));
                 }
-                self.location.next_symbol();
+
                 line.next();
             } else if *c == '_' {
-                self.location.next_symbol();
                 line.next();
             } else if c.is_digit(unsafe { radix.unwrap_unchecked() }) {
                 str.push(*c);
-                self.location.next_symbol();
+
                 line.next();
             } else {
                 token_stream.push_back(Token::Int {
@@ -284,7 +266,7 @@ impl<R: BufRead> Lexer<R> {
         token_stream: &mut VecDeque<Token>,
     ) -> Result<(), Error> {
         let mut str = String::new();
-        self.location.next_symbol();
+
         line.next();
 
         let mut escape = false;
@@ -292,14 +274,13 @@ impl<R: BufRead> Lexer<R> {
             if escape {
                 escape = !escape;
                 str.push(*c);
-                self.location.next_symbol();
+
                 line.next();
             } else if *c == '\\' {
                 escape = !escape;
-                self.location.next_symbol();
+
                 line.next();
             } else if *c == '"' {
-                self.location.next_symbol();
                 line.next();
                 token_stream.push_back(Token::Str {
                     str,
