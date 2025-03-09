@@ -6,7 +6,7 @@ use crate::{Error, parser::tokens::Token};
 
 use super::lexer_state::LexerState;
 
-pub fn scan_line<'a, 'b>(state: &'a mut LexerState<'b>) -> Result<(), Error> {
+pub fn scan_line(state: &mut LexerState) -> Result<(), Error> {
     while let Some(c) = state.peek() {
         let c = *c; // TODO make it clean
 
@@ -231,14 +231,11 @@ fn scan_composed_punctuation(state: &mut LexerState) -> Result<(), Error> {
 fn scan_int_literal(state: &mut LexerState) -> Result<(), Error> {
     let mut radix = None;
     if let Some(c) = state.peek() {
-        match c {
-            '0' => {
-                state.skip();
-            }
-            _ => {
-                radix = Some(10);
-                state.buffer();
-            }
+        if *c == '0' {
+            state.skip();
+        } else {
+            radix = Some(10);
+            state.buffer();
         }
     }
 
@@ -251,22 +248,20 @@ fn scan_int_literal(state: &mut LexerState) -> Result<(), Error> {
             } else {
                 break;
             }
+        } else if *c == 'x' || *c == 'X' {
+            radix = Some(16);
+            state.skip();
+        } else if *c == 'o' || *c == 'O' {
+            radix = Some(8);
+            state.skip();
+        } else if *c == 'b' || *c == 'B' {
+            radix = Some(2);
+            state.skip();
+        } else if c.is_ascii_digit() {
+            radix = Some(10);
+            state.buffer();
         } else {
-            if *c == 'x' || *c == 'X' {
-                radix = Some(16);
-                state.skip();
-            } else if *c == 'o' || *c == 'O' {
-                radix = Some(8);
-                state.skip();
-            } else if *c == 'b' || *c == 'B' {
-                radix = Some(2);
-                state.skip();
-            } else if c.is_ascii_digit() {
-                radix = Some(10);
-                state.buffer();
-            } else {
-                return Err(Error::UnexpectedSymbol(*c));
-            }
+            return Err(Error::UnexpectedSymbol(*c));
         }
     }
 
