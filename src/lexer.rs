@@ -191,27 +191,23 @@ impl<R: BufRead> Lexer<R> {
                 }
                 self.location.next_symbol();
                 line.next();
+            } else if *c == '_' {
+                self.location.next_symbol();
+                line.next();
+            } else if c.is_digit(unsafe { radix.unwrap_unchecked() }) {
+                str.push(*c);
+                self.location.next_symbol();
+                line.next();
             } else {
-                if *c == '_' {
-                    self.location.next_symbol();
-                    line.next();
-                } else {
-                    if c.is_digit(unsafe { radix.unwrap_unchecked() }) {
-                        str.push(*c);
-                        self.location.next_symbol();
-                        line.next();
-                    } else {
-                        token_stream.push_back(Token::Int {
-                            int: str.parse()?,
-                            l: self.location.clone(),
-                        });
-                        return Ok(());
-                    }
-                }
+                token_stream.push_back(Token::Int {
+                    int: str.parse()?,
+                    l: self.location.clone(),
+                });
+                return Ok(());
             }
         }
 
-        return Err(Error::UnexpectedEOF(self.location.clone()));
+        Err(Error::UnexpectedEOF(self.location.clone()))
     }
 
     fn scan_string_literal(
@@ -230,29 +226,27 @@ impl<R: BufRead> Lexer<R> {
                 str.push(*c);
                 self.location.next_symbol();
                 line.next();
-            } else {
-                if *c == '\\' {
-                    escape = !escape;
-                    self.location.next_symbol();
-                    line.next();
-                } else if *c == '"' {
-                    self.location.next_symbol();
-                    line.next();
-                    token_stream.push_back(Token::Str {
-                        str,
-                        l: self.location.clone(),
-                    });
-                    return Ok(());
-                } else if *c == '\n' {
-                    error!(
-                        "Multiline Strings not supported @ {} {}; {}",
-                        self.location.f, self.location.l, self.location.c
-                    );
-                    return Err(Error::UnexpectedLF(self.location.clone()));
-                }
+            } else if *c == '\\' {
+                escape = !escape;
+                self.location.next_symbol();
+                line.next();
+            } else if *c == '"' {
+                self.location.next_symbol();
+                line.next();
+                token_stream.push_back(Token::Str {
+                    str,
+                    l: self.location.clone(),
+                });
+                return Ok(());
+            } else if *c == '\n' {
+                error!(
+                    "Multiline Strings not supported @ {} {}; {}",
+                    self.location.f, self.location.l, self.location.c
+                );
+                return Err(Error::UnexpectedLF(self.location.clone()));
             }
         }
 
-        return Err(Error::UnexpectedEOF(self.location.clone()));
+        Err(Error::UnexpectedEOF(self.location.clone()))
     }
 }
