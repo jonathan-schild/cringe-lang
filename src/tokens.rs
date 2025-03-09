@@ -66,6 +66,8 @@ pub enum Token {
     NotEqualOperator { l: Location },
     Leq { l: Location },
     Geq { l: Location },
+    ShiftLeft { l: Location },
+    ShiftRight { l: Location },
     ArrayType { l: Location },
     // Keywords
     Sizeof { l: Location },
@@ -133,6 +135,8 @@ impl Token {
             Token::NotEqualOperator { l: _ } => "!=".to_string(),
             Token::Leq { l: _ } => "<=".to_string(),
             Token::Geq { l: _ } => ">=".to_string(),
+            Token::ShiftLeft { l: _ } => "<<".to_string(),
+            Token::ShiftRight { l: _ } => ">>".to_string(),
             Token::ArrayType { l: _ } => "[]".to_string(),
             Token::Sizeof { l: _ } => "sizeof".to_string(),
             Token::Namespace { l: _ } => "namespace".to_string(),

@@ -63,7 +63,7 @@ impl<R: BufRead> Lexer<R> {
             } else
             // Scan punctuation
             if c.is_ascii_punctuation() {
-                self.scan_punctuation(&mut line, token_stream);
+                self.scan_punctuation(&mut line, token_stream)?;
             } else {
                 match c {
                     _ => {
@@ -91,7 +91,11 @@ impl<R: BufRead> Lexer<R> {
         }
     }
 
-    fn scan_punctuation(&mut self, line: &mut Peekable<Chars>, token_stream: &mut VecDeque<Token>) {
+    fn scan_punctuation(
+        &mut self,
+        line: &mut Peekable<Chars>,
+        token_stream: &mut VecDeque<Token>,
+    ) -> Result<(), Error> {
         let Some(c) = line.peek() else { todo!() };
         let c = *c; // TODO clean that
 
@@ -124,13 +128,7 @@ impl<R: BufRead> Lexer<R> {
                     l: self.location.clone(),
                 }
             }
-            '!' => {
-                self.location.next_symbol();
-                line.next();
-                Token::Exclamation {
-                    l: self.location.clone(),
-                }
-            }
+
             '+' => {
                 self.location.next_symbol();
                 line.next();
@@ -194,39 +192,43 @@ impl<R: BufRead> Lexer<R> {
                     l: self.location.clone(),
                 }
             }
-            _ => self.scan_composed_punctuation(line),
+            _ => self.scan_composed_punctuation(line)?,
         };
 
         token_stream.push_back(token);
+        Ok(())
     }
 
-    fn scan_composed_punctuation(&mut self, line: &mut Peekable<Chars>) -> Token {
+    fn scan_composed_punctuation(&mut self, line: &mut Peekable<Chars>) -> Result<Token, Error> {
         let _ = match line.peek().unwrap() {
-            '=' => Token::Equal {
+            '!' => Ok(Token::Exclamation {
                 l: self.location.clone(),
-            },
-            '&' => Token::Ampersand {
+            }),
+            '=' => Ok(Token::Equal {
                 l: self.location.clone(),
-            },
-            '^' => Token::Head {
+            }),
+            '&' => Ok(Token::Ampersand {
                 l: self.location.clone(),
-            },
-            '|' => Token::Pipe {
+            }),
+            '^' => Ok(Token::Head {
                 l: self.location.clone(),
-            },
-            '<' => Token::LAngle {
+            }),
+            '|' => Ok(Token::Pipe {
                 l: self.location.clone(),
-            },
-            '>' => Token::RAngle {
+            }),
+            '<' => Ok(Token::LAngle {
                 l: self.location.clone(),
-            },
-            '[' => Token::LBracket {
+            }),
+            '>' => Ok(Token::RAngle {
                 l: self.location.clone(),
-            },
-            ']' => Token::RBracket {
+            }),
+            '[' => Ok(Token::LBracket {
                 l: self.location.clone(),
-            },
-            _ => self.scan_composed_punctuation(line),
+            }),
+            ']' => Ok(Token::RBracket {
+                l: self.location.clone(),
+            }),
+            c => Err(Error::UnexpectedSymbol(*c, self.location.clone())),
         };
         todo!()
     }
