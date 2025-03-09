@@ -1,4 +1,5 @@
-keywords: namespace, struct, fn, self, if, else, loop, for, in, break, continue, var, val, sizeof, return, unsigned, int, str, bool, true, false
+keywords: namespace, struct, fn, self, if, else, loop, for, in, break, continue, var, val, sizeof, return,
+            unsigned, int, str, bool, true, false
 
 program         ::= scope | struct | function
 

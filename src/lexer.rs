@@ -44,37 +44,132 @@ impl<R: BufRead> Lexer<R> {
         mut line: Peekable<Chars>,
         token_stream: &mut VecDeque<Token>,
     ) -> Result<(), Error> {
+        let mut buffer = String::new();
         while let Some(c) = line.peek() {
             let c = *c; // TODO make it clean
 
             // Skip whitespace
             if c.is_whitespace() {
+                self.scan_keyword_or_identifier(&mut buffer, token_stream)?;
                 self.skip_whitespace(&mut line);
             } else
             // Scan string literal
             if c == '"' {
+                self.scan_keyword_or_identifier(&mut buffer, token_stream)?;
                 self.scan_string_literal(&mut line, token_stream)?;
-            } else
-            // Scan int literal
-            if c.is_ascii_digit() {
-                self.scan_int_literal(&mut line, token_stream)?;
             } else
             // Scan punctuation
             if c.is_ascii_punctuation() {
                 self.scan_punctuation(&mut line, token_stream)?;
+            } else
+            // Scan int literal
+            if buffer.is_empty() && c.is_ascii_digit() {
+                self.scan_int_literal(&mut line, token_stream)?;
             } else {
-                match c {
-                    _ => {
-                        line.next();
-                        token_stream.push_back(Token::Unknown {
-                            l: self.token_location.clone(),
-                        });
-                    }
-                }
+                buffer.push(c);
+                line.next();
             }
         }
 
+        self.scan_keyword_or_identifier(&mut buffer, token_stream)?;
+
         Ok(())
+    }
+
+    fn scan_keyword_or_identifier(
+        &mut self,
+        buffer: &mut String,
+        token_stream: &mut VecDeque<Token>,
+    ) -> Result<(), Error> {
+        let token = match buffer.as_str() {
+            "namespace" => Token::Namespace {
+                l: self.token_location.clone(),
+            },
+            "struct" => Token::Struct {
+                l: self.token_location.clone(),
+            },
+            "fn" => Token::Fn {
+                l: self.token_location.clone(),
+            },
+            "self" => Token::SelfKey {
+                l: self.token_location.clone(),
+            },
+            "if" => Token::If {
+                l: self.token_location.clone(),
+            },
+            "else" => Token::Else {
+                l: self.token_location.clone(),
+            },
+            "loop" => Token::Loop {
+                l: self.token_location.clone(),
+            },
+            "for" => Token::For {
+                l: self.token_location.clone(),
+            },
+            "in" => Token::In {
+                l: self.token_location.clone(),
+            },
+            "break" => Token::Break {
+                l: self.token_location.clone(),
+            },
+            "continue" => Token::Continue {
+                l: self.token_location.clone(),
+            },
+            "var" => Token::Var {
+                l: self.token_location.clone(),
+            },
+            "val" => Token::Val {
+                l: self.token_location.clone(),
+            },
+            "sizeof" => Token::Sizeof {
+                l: self.token_location.clone(),
+            },
+            "return" => Token::Return {
+                l: self.token_location.clone(),
+            },
+            "unsigned" => Token::Unsigned {
+                l: self.token_location.clone(),
+            },
+            "int" => Token::IntKey {
+                l: self.token_location.clone(),
+            },
+            "str" => Token::StrKey {
+                l: self.token_location.clone(),
+            },
+            "bool" => Token::BoolKey {
+                l: self.token_location.clone(),
+            },
+            "true" => Token::Bool {
+                bool: true,
+                l: self.token_location.clone(),
+            },
+            "false" => Token::Bool {
+                bool: false,
+                l: self.token_location.clone(),
+            },
+            _ => self.scan_identifier(buffer)?,
+        };
+
+        token_stream.push_back(token);
+
+        buffer.clear();
+        Ok(())
+    }
+
+    fn scan_identifier(&mut self, buffer: &mut String) -> Result<Token, Error> {
+        for c in buffer.chars() {
+            if c.is_ascii_alphanumeric() || c == '_' || c == '-' {
+            } else {
+                return Err(Error::InvalidID(
+                    self.token_location.clone(),
+                    buffer.to_string(),
+                ));
+            }
+        }
+        Ok(Token::Identifier {
+            id: buffer.clone(),
+            l: self.token_location.clone(),
+        })
     }
 
     fn skip_whitespace(&mut self, line: &mut Peekable<Chars>) {
@@ -369,7 +464,7 @@ impl<R: BufRead> Lexer<R> {
                 escape = !escape;
                 line.next();
             } else if *c == '"' {
-                debug!("Finish parsing string literal str/{str}");
+                debug!("Finish parsing string literal str/\"{str}\"");
                 line.next();
                 token_stream.push_back(Token::Str {
                     str,

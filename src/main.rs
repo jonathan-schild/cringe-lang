@@ -36,4 +36,6 @@ enum Error {
     UnexpectedEOF(Location),
     #[error("Unexpected LF")]
     UnexpectedLF(Location),
+    #[error("Invalid identifier: {1}")]
+    InvalidID(Location, String),
 }
