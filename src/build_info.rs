@@ -10,18 +10,18 @@ pub fn build_info() -> String {
         env!("CARGO_PKG_NAME")
     );
 
-    let version = if !env!("BUILD_HASH").is_empty() {
+    let version = if env!("BUILD_HASH").is_empty() {
         format!(
-            "Version: {}+{}.{} at {}",
+            "Version: {}.{} at {}",
             env!("CARGO_PKG_VERSION"),
-            env!("BUILD_HASH"),
             env!("BUILD_EPOCH"),
             env!("BUILD_DATE")
         )
     } else {
         format!(
-            "Version: {}.{} at {}",
+            "Version: {}+{}.{} at {}",
             env!("CARGO_PKG_VERSION"),
+            env!("BUILD_HASH"),
             env!("BUILD_EPOCH"),
             env!("BUILD_DATE")
         )

@@ -14,12 +14,13 @@ pub struct Lexer<R: BufRead> {
 }
 
 impl<R: BufRead> Lexer<R> {
+    #[allow(clippy::too_many_lines)]
     pub fn next(&mut self) -> Result<Token, ()> {
         if self.buf.is_empty() {
             self.l += 1;
             self.c = 0;
             self.source.read_line(&mut self.buf).unwrap();
-            self.buf = self.buf.chars().into_iter().rev().collect();
+            self.buf = self.buf.chars().rev().collect();
         }
 
         let mut current;
