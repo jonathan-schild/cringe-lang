@@ -16,6 +16,8 @@ use crate::{
     tokens::{Location, Token},
 };
 
+mod lexer_state;
+
 pub struct Lexer<R: BufRead> {
     source: R,
     current_location: Location,
