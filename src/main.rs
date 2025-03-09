@@ -13,11 +13,10 @@ use log::info;
 use thiserror::Error;
 
 use build_info::build_info;
-use tokens::Location;
+use parser::tokens::{self, Location};
 
 mod build_info;
-mod lexer;
-mod tokens;
+mod parser;
 
 pub fn main() {
     env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
