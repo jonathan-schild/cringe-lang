@@ -19,7 +19,8 @@ use crate::{
 pub struct Lexer<R: BufRead> {
     source: R,
     buf: String,
-    location: Location,
+    current_location: Location,
+    token_location: Location,
 }
 
 impl<R: BufRead> Lexer<R> {
@@ -67,7 +68,7 @@ impl<R: BufRead> Lexer<R> {
                     _ => {
                         line.next();
                         token_stream.push_back(Token::Unknown {
-                            l: self.location.clone(),
+                            l: self.token_location.clone(),
                         });
                     }
                 }
@@ -99,92 +100,92 @@ impl<R: BufRead> Lexer<R> {
             ',' => {
                 line.next();
                 Token::Comma {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             ':' => {
                 line.next();
                 Token::Colon {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             ';' => {
                 line.next();
                 Token::SemiColon {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             '.' => {
                 line.next();
                 Token::Dot {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
 
             '+' => {
                 line.next();
                 Token::Plus {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             '-' => {
                 line.next();
                 Token::Dash {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             '*' => {
                 line.next();
                 Token::Asterix {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             '/' => {
                 line.next();
                 Token::Slash {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             '%' => {
                 line.next();
                 Token::Percent {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             '{' => {
                 line.next();
                 Token::LBrace {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             '}' => {
                 line.next();
                 Token::RBrace {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             '(' => {
                 line.next();
                 Token::LPar {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             ')' => {
                 line.next();
                 Token::RPar {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             '[' => {
                 line.next();
                 Token::LBracket {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             ']' => {
                 line.next();
                 Token::RBracket {
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 }
             }
             _ => self.scan_composed_punctuation(line)?,
@@ -197,28 +198,28 @@ impl<R: BufRead> Lexer<R> {
     fn scan_composed_punctuation(&mut self, line: &mut Peekable<Chars>) -> Result<Token, Error> {
         let _ = match line.peek().unwrap() {
             '!' => Ok(Token::Exclamation {
-                l: self.location.clone(),
+                l: self.token_location.clone(),
             }),
             '=' => Ok(Token::Equal {
-                l: self.location.clone(),
+                l: self.token_location.clone(),
             }),
             '&' => Ok(Token::Ampersand {
-                l: self.location.clone(),
+                l: self.token_location.clone(),
             }),
             '^' => Ok(Token::Head {
-                l: self.location.clone(),
+                l: self.token_location.clone(),
             }),
             '|' => Ok(Token::Pipe {
-                l: self.location.clone(),
+                l: self.token_location.clone(),
             }),
             '<' => Ok(Token::LAngle {
-                l: self.location.clone(),
+                l: self.token_location.clone(),
             }),
             '>' => Ok(Token::RAngle {
-                l: self.location.clone(),
+                l: self.token_location.clone(),
             }),
 
-            c => Err(Error::UnexpectedSymbol(*c, self.location.clone())),
+            c => Err(Error::UnexpectedSymbol(*c, self.token_location.clone())),
         };
         todo!()
     }
@@ -245,7 +246,7 @@ impl<R: BufRead> Lexer<R> {
                     radix = Some(10);
                     str.push(*c);
                 } else {
-                    return Err(Error::UnexpectedSymbol(*c, self.location.clone()));
+                    return Err(Error::UnexpectedSymbol(*c, self.token_location.clone()));
                 }
 
                 line.next();
@@ -258,13 +259,13 @@ impl<R: BufRead> Lexer<R> {
             } else {
                 token_stream.push_back(Token::Int {
                     int: str.parse()?,
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 });
                 return Ok(());
             }
         }
 
-        Err(Error::UnexpectedEOF(self.location.clone()))
+        Err(Error::UnexpectedEOF(self.token_location.clone()))
     }
 
     fn scan_string_literal(
@@ -291,18 +292,18 @@ impl<R: BufRead> Lexer<R> {
                 line.next();
                 token_stream.push_back(Token::Str {
                     str,
-                    l: self.location.clone(),
+                    l: self.token_location.clone(),
                 });
                 return Ok(());
             } else if *c == '\n' {
                 error!(
                     "Multiline Strings not supported @ {} {}; {}",
-                    self.location.f, self.location.l, self.location.c
+                    self.token_location.f, self.token_location.l, self.token_location.c
                 );
-                return Err(Error::UnexpectedLF(self.location.clone()));
+                return Err(Error::UnexpectedLF(self.token_location.clone()));
             }
         }
 
-        Err(Error::UnexpectedEOF(self.location.clone()))
+        Err(Error::UnexpectedEOF(self.token_location.clone()))
     }
 }
