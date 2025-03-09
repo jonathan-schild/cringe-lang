@@ -1,9 +1,14 @@
 use std::{
-    io::{BufRead, Read},
-    rc::Rc,
+    collections::VecDeque,
+    io::BufRead,
+    iter::{Enumerate, Peekable, SkipWhile},
+    str::Chars,
 };
 
-use crate::tokens::{Location, Token};
+use crate::{
+    Error,
+    tokens::{Location, Token},
+};
 
 pub struct Lexer<R: BufRead> {
     source: R,
@@ -12,6 +17,50 @@ pub struct Lexer<R: BufRead> {
 }
 
 impl<R: BufRead> Lexer<R> {
+    pub fn scan(&mut self) -> Result<VecDeque<Token>, Error> {
+        let mut token_stream = VecDeque::new();
+        let mut line_buffer = String::new();
+
+        // EOF return
+        if self.source.read_line(&mut line_buffer)? == 0 {
+            return Ok(token_stream);
+        }
+
+        let iter = line_buffer
+            .chars()
+            .enumerate()
+            .skip_while(|(_, c)| c.is_whitespace())
+            .peekable();
+
+        self.scan_line(iter, &mut token_stream)?;
+
+        Ok(token_stream)
+    }
+
+    fn scan_line<P: FnMut(&(usize, char)) -> bool>(
+        &mut self,
+        mut line: Peekable<SkipWhile<Enumerate<Chars>, P>>,
+        token_stream: &mut VecDeque<Token>,
+    ) -> Result<(), Error> {
+        self.location.next_line();
+
+        while let Some((i, c)) = line.peek() {
+            self.location.update_symbol(*i);
+
+            match *c {
+                _ => {
+                    self.location.next_symbol();
+                    line.next();
+                    token_stream.push_back(Token::Unknown {
+                        l: self.location.clone(),
+                    });
+                }
+            }
+        }
+
+        Ok(())
+    }
+
     #[allow(clippy::too_many_lines)]
     pub fn next(&mut self) -> Result<Token, ()> {
         if self.buf.is_empty() {
@@ -68,15 +117,15 @@ impl<R: BufRead> Lexer<R> {
                 '^' => Token::Head {
                     l: self.location.clone(),
                 },
-                '|' => Token::Pipe {
+                '|' => self.lex_composed(Token::Pipe {
                     l: self.location.clone(),
-                },
-                '<' => Token::LAngle {
+                }),
+                '<' => self.lex_composed(Token::LAngle {
                     l: self.location.clone(),
-                },
-                '>' => Token::RAngle {
+                }),
+                '>' => self.lex_composed(Token::RAngle {
                     l: self.location.clone(),
-                },
+                }),
                 '{' => Token::LBrace {
                     l: self.location.clone(),
                 },
@@ -89,9 +138,9 @@ impl<R: BufRead> Lexer<R> {
                 ')' => Token::RPar {
                     l: self.location.clone(),
                 },
-                '[' => Token::LBracket {
+                '[' => self.lex_composed(Token::LBracket {
                     l: self.location.clone(),
-                },
+                }),
                 ']' => Token::RBracket {
                     l: self.location.clone(),
                 },
