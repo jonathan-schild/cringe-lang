@@ -175,6 +175,18 @@ impl<R: BufRead> Lexer<R> {
                     l: self.location.clone(),
                 }
             }
+            '[' => {
+                line.next();
+                Token::LBracket {
+                    l: self.location.clone(),
+                }
+            }
+            ']' => {
+                line.next();
+                Token::RBracket {
+                    l: self.location.clone(),
+                }
+            }
             _ => self.scan_composed_punctuation(line)?,
         };
 
@@ -205,12 +217,7 @@ impl<R: BufRead> Lexer<R> {
             '>' => Ok(Token::RAngle {
                 l: self.location.clone(),
             }),
-            '[' => Ok(Token::LBracket {
-                l: self.location.clone(),
-            }),
-            ']' => Ok(Token::RBracket {
-                l: self.location.clone(),
-            }),
+
             c => Err(Error::UnexpectedSymbol(*c, self.location.clone())),
         };
         todo!()

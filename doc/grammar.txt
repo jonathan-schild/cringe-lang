@@ -7,7 +7,7 @@ struct          ::= 'struct' identifier '{' member ( ',' member )* '}'
 function        ::= 'fn' identifier '(' ( member | 'self' ) ( ',' member )* ')' ('->' type)? '{' body '}'
 
 member          ::= identifier ':' type
-type            ::= '*'* ( identifier | 'unsigned'? 'int' | 'str' | 'bool' ) '[]'*
+type            ::= '*'* ( identifier | 'unsigned'? 'int' | 'str' | 'bool' ) ( '[' ']' )*
 identifier      ::= ( '_' | '-' | 'A' - 'Z' | 'a' - 'z' ) ( '0' - '9' | '_' | '-' | 'A' - 'Z' | 'a' - 'z' )*
 literal         ::= '"' ? UTF-8 String ? '"' | '0x' hex_digit ( '_' | hex_digit )* | dec_digit ( '_' | dec_digit )*
                     | '0o' oct_digit ( '_' | oct_digit )* | '0b' bin_digit ( '_' | bin_digit )* | 'true' | 'false'

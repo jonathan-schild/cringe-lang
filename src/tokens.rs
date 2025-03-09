@@ -68,7 +68,6 @@ pub enum Token {
     Geq { l: Location },
     ShiftLeft { l: Location },
     ShiftRight { l: Location },
-    ArrayType { l: Location },
     // Keywords
     Sizeof { l: Location },
     Namespace { l: Location },
@@ -137,7 +136,6 @@ impl Token {
             Token::Geq { l: _ } => ">=".to_string(),
             Token::ShiftLeft { l: _ } => "<<".to_string(),
             Token::ShiftRight { l: _ } => ">>".to_string(),
-            Token::ArrayType { l: _ } => "[]".to_string(),
             Token::Sizeof { l: _ } => "sizeof".to_string(),
             Token::Namespace { l: _ } => "namespace".to_string(),
             Token::Struct { l: _ } => "struct".to_string(),
