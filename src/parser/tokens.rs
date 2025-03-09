@@ -25,204 +25,137 @@ impl Location {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Token {
-    Unknown { l: Location },
+    Unknown,
     // Single punctuation symbol
-    Comma { l: Location },
-    Colon { l: Location },
-    SemiColon { l: Location },
-    Dot { l: Location },
-    Exclamation { l: Location },
-    LableDecl { l: Location },
+    Comma,
+    Colon,
+    SemiColon,
+    Dot,
+    Exclamation,
+    LableDecl,
     // Single arithmetic symbol
-    Plus { l: Location },
-    Dash { l: Location },
-    Asterix { l: Location },
-    Slash { l: Location },
-    Percent { l: Location },
-    Equal { l: Location },
+    Plus,
+    Dash,
+    Asterix,
+    Slash,
+    Percent,
+    Equal,
     // Single logical symbol
-    Ampersand { l: Location },
-    Head { l: Location },
-    Pipe { l: Location },
+    Ampersand,
+    Hat,
+    Pipe,
     // Single grouping symbol
-    LAngle { l: Location },
-    RAngle { l: Location },
-    LBrace { l: Location },
-    RBrace { l: Location },
-    LPar { l: Location },
-    RPar { l: Location },
-    LBracket { l: Location },
-    RBracket { l: Location },
+    LAngle,
+    RAngle,
+    LBrace,
+    RBrace,
+    LPar,
+    RPar,
+    LBracket,
+    RBracket,
     // Literal
-    Int { int: u64, l: Location },
-    Str { str: String, l: Location },
-    Bool { bool: bool, l: Location },
-    Identifier { id: String, l: Location },
+    Int(u64),
+    Str(String),
+    Bool(bool),
+    Identifier(String),
     // Composed symbols
-    LogicalOr { l: Location },
-    LogicalAnd { l: Location },
-    EqualOperator { l: Location },
-    NotEqualOperator { l: Location },
-    Leq { l: Location },
-    Geq { l: Location },
-    ShiftLeft { l: Location },
-    ShiftRight { l: Location },
+    LogicalOr,
+    LogicalAnd,
+    EqualOperator,
+    NotEqualOperator,
+    Leq,
+    Geq,
+    ShiftLeft,
+    ShiftRight,
     // Keywords
-    Sizeof { l: Location },
-    Namespace { l: Location },
-    Struct { l: Location },
-    Fn { l: Location },
-    SelfKey { l: Location },
-    If { l: Location },
-    Else { l: Location },
-    Loop { l: Location },
-    For { l: Location },
-    In { l: Location },
-    Break { l: Location },
-    Continue { l: Location },
-    Var { l: Location },
-    Val { l: Location },
-    Return { l: Location },
-    Unsigned { l: Location },
-    IntKey { l: Location },
-    StrKey { l: Location },
-    BoolKey { l: Location },
+    Sizeof,
+    Namespace,
+    Struct,
+    Fn,
+    SelfKey,
+    If,
+    Else,
+    Loop,
+    For,
+    In,
+    Break,
+    Continue,
+    Var,
+    Val,
+    Return,
+    Unsigned,
+    IntKey,
+    StrKey,
+    BoolKey,
 }
 
 impl Token {
     pub fn to_debug_string(&self) -> String {
         // TODO create string at the end
         match self {
-            Token::Unknown { l: _ } => "UNKNOWN".to_string(),
-            Token::Comma { l: _ } => ",".to_string(),
-            Token::Colon { l: _ } => ":".to_string(),
-            Token::SemiColon { l: _ } => ";".to_string(),
-            Token::Dot { l: _ } => ".".to_string(),
-            Token::Exclamation { l: _ } => "!".to_string(),
-            Token::LableDecl { l: _ } => "'".to_string(),
-            Token::Plus { l: _ } => "+".to_string(),
-            Token::Dash { l: _ } => "-".to_string(),
-            Token::Asterix { l: _ } => "*".to_string(),
-            Token::Slash { l: _ } => "/".to_string(),
-            Token::Percent { l: _ } => "%".to_string(),
-            Token::Equal { l: _ } => "=".to_string(),
-            Token::Ampersand { l: _ } => "&".to_string(),
-            Token::Head { l: _ } => "^".to_string(),
-            Token::Pipe { l: _ } => "|".to_string(),
-            Token::LAngle { l: _ } => "<".to_string(),
-            Token::RAngle { l: _ } => ">".to_string(),
-            Token::LBrace { l: _ } => "{".to_string(),
-            Token::RBrace { l: _ } => "}".to_string(),
-            Token::LPar { l: _ } => "(".to_string(),
-            Token::RPar { l: _ } => ")".to_string(),
-            Token::LBracket { l: _ } => "[".to_string(),
-            Token::RBracket { l: _ } => "]".to_string(),
-            Token::Int { int, l: _ } => format!("int/{int}"),
-            Token::Str { str, l: _ } => format!("str/\"{str}\""),
-            Token::Bool { bool, l: _ } => {
+            Token::Unknown => "UNKNOWN".to_string(),
+            Token::Comma => ",".to_string(),
+            Token::Colon => ":".to_string(),
+            Token::SemiColon => ";".to_string(),
+            Token::Dot => ".".to_string(),
+            Token::Exclamation => "!".to_string(),
+            Token::LableDecl => "'".to_string(),
+            Token::Plus => "+".to_string(),
+            Token::Dash => "-".to_string(),
+            Token::Asterix => "*".to_string(),
+            Token::Slash => "/".to_string(),
+            Token::Percent => "%".to_string(),
+            Token::Equal => "=".to_string(),
+            Token::Ampersand => "&".to_string(),
+            Token::Hat => "^".to_string(),
+            Token::Pipe => "|".to_string(),
+            Token::LAngle => "<".to_string(),
+            Token::RAngle => ">".to_string(),
+            Token::LBrace => "{".to_string(),
+            Token::RBrace => "}".to_string(),
+            Token::LPar => "(".to_string(),
+            Token::RPar => ")".to_string(),
+            Token::LBracket => "[".to_string(),
+            Token::RBracket => "]".to_string(),
+            Token::Int(int) => format!("int/{int}"),
+            Token::Str(str) => format!("str/\"{str}\""),
+            Token::Bool(bool) => {
                 if *bool {
                     "bool/true".to_string()
                 } else {
                     "bool/false".to_string()
                 }
             }
-            Token::Identifier { id, l: _ } => format!("id/{id}"),
-            Token::LogicalOr { l: _ } => "||".to_string(),
-            Token::LogicalAnd { l: _ } => "&&".to_string(),
-            Token::EqualOperator { l: _ } => "==".to_string(),
-            Token::NotEqualOperator { l: _ } => "!=".to_string(),
-            Token::Leq { l: _ } => "<=".to_string(),
-            Token::Geq { l: _ } => ">=".to_string(),
-            Token::ShiftLeft { l: _ } => "<<".to_string(),
-            Token::ShiftRight { l: _ } => ">>".to_string(),
-            Token::Sizeof { l: _ } => "sizeof".to_string(),
-            Token::Namespace { l: _ } => "namespace".to_string(),
-            Token::Struct { l: _ } => "struct".to_string(),
-            Token::Fn { l: _ } => "fn".to_string(),
-            Token::SelfKey { l: _ } => "self".to_string(),
-            Token::If { l: _ } => "if".to_string(),
-            Token::Else { l: _ } => "else".to_string(),
-            Token::Loop { l: _ } => "loop".to_string(),
-            Token::For { l: _ } => "for".to_string(),
-            Token::In { l: _ } => "in".to_string(),
-            Token::Break { l: _ } => "break".to_string(),
-            Token::Continue { l: _ } => "continue".to_string(),
-            Token::Var { l: _ } => "var".to_string(),
-            Token::Val { l: _ } => "val".to_string(),
-            Token::Return { l: _ } => "return".to_string(),
-            Token::Unsigned { l: _ } => "unsigned".to_string(),
-            Token::IntKey { l: _ } => "int".to_string(),
-            Token::StrKey { l: _ } => "str".to_string(),
-            Token::BoolKey { l: _ } => "bool".to_string(),
-        }
-    }
-}
-
-impl PartialEq for Token {
-    fn eq(&self, other: &Self) -> bool {
-        match (self, other) {
-            (Self::Unknown { l: _ }, Self::Unknown { l: _ })
-            | (Self::Comma { l: _ }, Self::Comma { l: _ })
-            | (Self::Colon { l: _ }, Self::Colon { l: _ })
-            | (Self::SemiColon { l: _ }, Self::SemiColon { l: _ })
-            | (Self::Dot { l: _ }, Self::Dot { l: _ })
-            | (Self::Exclamation { l: _ }, Self::Exclamation { l: _ })
-            | (Self::LableDecl { l: _ }, Self::LableDecl { l: _ })
-            | (Self::Plus { l: _ }, Self::Plus { l: _ })
-            | (Self::Dash { l: _ }, Self::Dash { l: _ })
-            | (Self::Asterix { l: _ }, Self::Asterix { l: _ })
-            | (Self::Slash { l: _ }, Self::Slash { l: _ })
-            | (Self::Percent { l: _ }, Self::Percent { l: _ })
-            | (Self::Equal { l: _ }, Self::Equal { l: _ })
-            | (Self::Ampersand { l: _ }, Self::Ampersand { l: _ })
-            | (Self::Head { l: _ }, Self::Head { l: _ })
-            | (Self::Pipe { l: _ }, Self::Pipe { l: _ })
-            | (Self::LAngle { l: _ }, Self::LAngle { l: _ })
-            | (Self::RAngle { l: _ }, Self::RAngle { l: _ })
-            | (Self::LBrace { l: _ }, Self::LBrace { l: _ })
-            | (Self::RBrace { l: _ }, Self::RBrace { l: _ })
-            | (Self::LPar { l: _ }, Self::LPar { l: _ })
-            | (Self::RPar { l: _ }, Self::RPar { l: _ })
-            | (Self::LBracket { l: _ }, Self::LBracket { l: _ })
-            | (Self::RBracket { l: _ }, Self::RBracket { l: _ })
-            | (Self::LogicalOr { l: _ }, Self::LogicalOr { l: _ })
-            | (Self::LogicalAnd { l: _ }, Self::LogicalAnd { l: _ })
-            | (Self::EqualOperator { l: _ }, Self::EqualOperator { l: _ })
-            | (Self::NotEqualOperator { l: _ }, Self::NotEqualOperator { l: _ })
-            | (Self::Leq { l: _ }, Self::Leq { l: _ })
-            | (Self::Geq { l: _ }, Self::Geq { l: _ })
-            | (Self::ShiftLeft { l: _ }, Self::ShiftLeft { l: _ })
-            | (Self::ShiftRight { l: _ }, Self::ShiftRight { l: _ })
-            | (Self::Sizeof { l: _ }, Self::Sizeof { l: _ })
-            | (Self::Namespace { l: _ }, Self::Namespace { l: _ })
-            | (Self::Struct { l: _ }, Self::Struct { l: _ })
-            | (Self::Fn { l: _ }, Self::Fn { l: _ })
-            | (Self::SelfKey { l: _ }, Self::SelfKey { l: _ })
-            | (Self::If { l: _ }, Self::If { l: _ })
-            | (Self::Else { l: _ }, Self::Else { l: _ })
-            | (Self::Loop { l: _ }, Self::Loop { l: _ })
-            | (Self::For { l: _ }, Self::For { l: _ })
-            | (Self::In { l: _ }, Self::In { l: _ })
-            | (Self::Break { l: _ }, Self::Break { l: _ })
-            | (Self::Continue { l: _ }, Self::Continue { l: _ })
-            | (Self::Var { l: _ }, Self::Var { l: _ })
-            | (Self::Val { l: _ }, Self::Val { l: _ })
-            | (Self::Return { l: _ }, Self::Return { l: _ })
-            | (Self::Unsigned { l: _ }, Self::Unsigned { l: _ })
-            | (Self::IntKey { l: _ }, Self::IntKey { l: _ })
-            | (Self::StrKey { l: _ }, Self::StrKey { l: _ })
-            | (Self::BoolKey { l: _ }, Self::BoolKey { l: _ }) => true,
-            (Self::Int { int: l_int, l: _ }, Self::Int { int: r_int, l: _ }) => l_int == r_int,
-            (Self::Str { str: l_str, l: _ }, Self::Str { str: r_str, l: _ }) => l_str == r_str,
-            (Self::Bool { bool: l_bool, l: _ }, Self::Bool { bool: r_bool, l: _ }) => {
-                l_bool == r_bool
-            }
-            (Self::Identifier { id: l_id, l: _ }, Self::Identifier { id: r_id, l: _ }) => {
-                l_id == r_id
-            }
-            _ => false,
+            Token::Identifier(id) => format!("id/{id}"),
+            Token::LogicalOr => "||".to_string(),
+            Token::LogicalAnd => "&&".to_string(),
+            Token::EqualOperator => "==".to_string(),
+            Token::NotEqualOperator => "!=".to_string(),
+            Token::Leq => "<=".to_string(),
+            Token::Geq => ">=".to_string(),
+            Token::ShiftLeft => "<<".to_string(),
+            Token::ShiftRight => ">>".to_string(),
+            Token::Sizeof => "sizeof".to_string(),
+            Token::Namespace => "namespace".to_string(),
+            Token::Struct => "struct".to_string(),
+            Token::Fn => "fn".to_string(),
+            Token::SelfKey => "self".to_string(),
+            Token::If => "if".to_string(),
+            Token::Else => "else".to_string(),
+            Token::Loop => "loop".to_string(),
+            Token::For => "for".to_string(),
+            Token::In => "in".to_string(),
+            Token::Break => "break".to_string(),
+            Token::Continue => "continue".to_string(),
+            Token::Var => "var".to_string(),
+            Token::Val => "val".to_string(),
+            Token::Return => "return".to_string(),
+            Token::Unsigned => "unsigned".to_string(),
+            Token::IntKey => "int".to_string(),
+            Token::StrKey => "str".to_string(),
+            Token::BoolKey => "bool".to_string(),
         }
     }
 }

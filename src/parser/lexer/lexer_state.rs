@@ -25,9 +25,10 @@ impl<'a> LexerState<'a> {
         }
     }
 
-    pub fn peek<'b>(&'a mut self) -> Option<&'b char>
+    pub fn peek<'b, 'c>(&'b mut self) -> Option<&'c char>
     where
         'a: 'b,
+        'b: 'c,
     {
         self.buffer_line.peek()
     }
@@ -53,11 +54,16 @@ impl<'a> LexerState<'a> {
         self.buffer.clear();
     }
 
+    pub fn is_string_buffer_empty(&self) -> bool {
+        self.buffer.is_empty()
+    }
+
     pub fn string_buffer(&self) -> &str {
         self.buffer.as_str()
     }
 
     pub fn accept(&mut self, token: Token) {
+        self.buffer.clear();
         self.token_stream.push_back(token);
         self.token_location = self.current_location.clone();
     }

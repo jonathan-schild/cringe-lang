@@ -30,11 +30,11 @@ enum Error {
     #[error(transparent)]
     ParseInt(#[from] ParseIntError),
     #[error("Unexpected symbol {0}")]
-    UnexpectedSymbol(char, Location),
+    UnexpectedSymbol(char),
     #[error("Unexpected EOF")]
-    UnexpectedEOF(Location),
+    UnexpectedEOF,
     #[error("Unexpected LF")]
-    UnexpectedLF(Location),
-    #[error("Invalid identifier: {1}")]
-    InvalidID(Location, String),
+    UnexpectedLF,
+    #[error("Invalid identifier: {0}")]
+    InvalidID(String),
 }
