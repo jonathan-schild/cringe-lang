@@ -87,6 +87,7 @@ pub enum Token {
 
 impl Token {
     pub fn to_debug_string(&self) -> String {
+        // TODO create string at the end
         match self {
             Token::Unknown { l: _ } => "UNKNOWN".to_string(),
             Token::Comma { l: _ } => ",".to_string(),
