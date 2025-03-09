@@ -51,7 +51,7 @@ impl<R: BufRead> Lexer<R> {
             // Skip whitespace
             if c.is_whitespace() {
                 self.scan_keyword_or_identifier(&mut buffer, token_stream)?;
-                self.skip_whitespace(&mut line);
+                Self::skip_whitespace(&mut line);
             } else
             // Scan string literal
             if c == '"' {
@@ -162,7 +162,7 @@ impl<R: BufRead> Lexer<R> {
             } else {
                 return Err(Error::InvalidID(
                     self.token_location.clone(),
-                    buffer.to_string(),
+                    (*buffer).to_string(),
                 ));
             }
         }
@@ -172,7 +172,7 @@ impl<R: BufRead> Lexer<R> {
         })
     }
 
-    fn skip_whitespace(&mut self, line: &mut Peekable<Chars>) {
+    fn skip_whitespace(line: &mut Peekable<Chars>) {
         while let Some(c) = line.peek() {
             if !c.is_whitespace() {
                 break;
@@ -182,6 +182,7 @@ impl<R: BufRead> Lexer<R> {
         }
     }
 
+    #[allow(clippy::too_many_lines)]
     fn scan_punctuation(
         &mut self,
         line: &mut Peekable<Chars>,
@@ -295,6 +296,7 @@ impl<R: BufRead> Lexer<R> {
         Ok(())
     }
 
+    #[allow(clippy::too_many_lines)]
     fn scan_composed_punctuation(&mut self, line: &mut Peekable<Chars>) -> Result<Token, Error> {
         match line.peek().unwrap() {
             '!' => {
@@ -412,7 +414,16 @@ impl<R: BufRead> Lexer<R> {
 
         let mut radix = None;
         while let Some(c) = line.peek() {
-            if radix.is_none() {
+            if let Some(radix) = radix {
+                if *c == '_' {
+                    line.next();
+                } else if c.is_digit(radix) {
+                    str.push(*c);
+                    line.next();
+                } else {
+                    break;
+                }
+            } else {
                 if *c == 'x' || *c == 'X' {
                     radix = Some(16);
                 } else if *c == 'o' || *c == 'O' {
@@ -427,13 +438,6 @@ impl<R: BufRead> Lexer<R> {
                 }
 
                 line.next();
-            } else if *c == '_' {
-                line.next();
-            } else if c.is_digit(radix.unwrap()) {
-                str.push(*c);
-                line.next();
-            } else {
-                break;
             }
         }
         dbg!(&str);
@@ -518,9 +522,9 @@ mod test {
             .chars()
             .peekable();
         let mut invalid_input_string_2 = r#""A string without an ending!"#.chars().peekable();
-        let mut invalid_input_string_3 = r#"Another invalid string with
+        let mut invalid_input_string_3 = r"Another invalid string with
         a line break
-        "#
+        "
         .chars()
         .peekable();
 
@@ -567,10 +571,10 @@ mod test {
     fn scan_int_literal() -> Result<(), Error> {
         // env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
 
-        let mut input_string_0 = r#"012345"#.chars().peekable();
-        let mut input_string_1 = r#"0xABCD"#.chars().peekable();
-        let mut input_string_2 = r#"0b01011101"#.chars().peekable();
-        let mut input_string_3 = r#"0o7654"#.chars().peekable();
+        let mut input_string_0 = r"012345".chars().peekable();
+        let mut input_string_1 = r"0xABCD".chars().peekable();
+        let mut input_string_2 = r"0b01011101".chars().peekable();
+        let mut input_string_3 = r"0o7654".chars().peekable();
 
         let mut lexer = test_lexer();
 

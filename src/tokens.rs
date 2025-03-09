@@ -163,30 +163,57 @@ impl Token {
 impl PartialEq for Token {
     fn eq(&self, other: &Self) -> bool {
         match (self, other) {
-            (Self::Unknown { l: _ }, Self::Unknown { l: _ }) => true,
-            (Self::Comma { l: _ }, Self::Comma { l: _ }) => true,
-            (Self::Colon { l: _ }, Self::Colon { l: _ }) => true,
-            (Self::SemiColon { l: _ }, Self::SemiColon { l: _ }) => true,
-            (Self::Dot { l: _ }, Self::Dot { l: _ }) => true,
-            (Self::Exclamation { l: _ }, Self::Exclamation { l: _ }) => true,
-            (Self::LableDecl { l: _ }, Self::LableDecl { l: _ }) => true,
-            (Self::Plus { l: _ }, Self::Plus { l: _ }) => true,
-            (Self::Dash { l: _ }, Self::Dash { l: _ }) => true,
-            (Self::Asterix { l: _ }, Self::Asterix { l: _ }) => true,
-            (Self::Slash { l: _ }, Self::Slash { l: _ }) => true,
-            (Self::Percent { l: _ }, Self::Percent { l: _ }) => true,
-            (Self::Equal { l: _ }, Self::Equal { l: _ }) => true,
-            (Self::Ampersand { l: _ }, Self::Ampersand { l: _ }) => true,
-            (Self::Head { l: _ }, Self::Head { l: _ }) => true,
-            (Self::Pipe { l: _ }, Self::Pipe { l: _ }) => true,
-            (Self::LAngle { l: _ }, Self::LAngle { l: _ }) => true,
-            (Self::RAngle { l: _ }, Self::RAngle { l: _ }) => true,
-            (Self::LBrace { l: _ }, Self::LBrace { l: _ }) => true,
-            (Self::RBrace { l: _ }, Self::RBrace { l: _ }) => true,
-            (Self::LPar { l: _ }, Self::LPar { l: _ }) => true,
-            (Self::RPar { l: _ }, Self::RPar { l: _ }) => true,
-            (Self::LBracket { l: _ }, Self::LBracket { l: _ }) => true,
-            (Self::RBracket { l: _ }, Self::RBracket { l: _ }) => true,
+            (Self::Unknown { l: _ }, Self::Unknown { l: _ })
+            | (Self::Comma { l: _ }, Self::Comma { l: _ })
+            | (Self::Colon { l: _ }, Self::Colon { l: _ })
+            | (Self::SemiColon { l: _ }, Self::SemiColon { l: _ })
+            | (Self::Dot { l: _ }, Self::Dot { l: _ })
+            | (Self::Exclamation { l: _ }, Self::Exclamation { l: _ })
+            | (Self::LableDecl { l: _ }, Self::LableDecl { l: _ })
+            | (Self::Plus { l: _ }, Self::Plus { l: _ })
+            | (Self::Dash { l: _ }, Self::Dash { l: _ })
+            | (Self::Asterix { l: _ }, Self::Asterix { l: _ })
+            | (Self::Slash { l: _ }, Self::Slash { l: _ })
+            | (Self::Percent { l: _ }, Self::Percent { l: _ })
+            | (Self::Equal { l: _ }, Self::Equal { l: _ })
+            | (Self::Ampersand { l: _ }, Self::Ampersand { l: _ })
+            | (Self::Head { l: _ }, Self::Head { l: _ })
+            | (Self::Pipe { l: _ }, Self::Pipe { l: _ })
+            | (Self::LAngle { l: _ }, Self::LAngle { l: _ })
+            | (Self::RAngle { l: _ }, Self::RAngle { l: _ })
+            | (Self::LBrace { l: _ }, Self::LBrace { l: _ })
+            | (Self::RBrace { l: _ }, Self::RBrace { l: _ })
+            | (Self::LPar { l: _ }, Self::LPar { l: _ })
+            | (Self::RPar { l: _ }, Self::RPar { l: _ })
+            | (Self::LBracket { l: _ }, Self::LBracket { l: _ })
+            | (Self::RBracket { l: _ }, Self::RBracket { l: _ })
+            | (Self::LogicalOr { l: _ }, Self::LogicalOr { l: _ })
+            | (Self::LogicalAnd { l: _ }, Self::LogicalAnd { l: _ })
+            | (Self::EqualOperator { l: _ }, Self::EqualOperator { l: _ })
+            | (Self::NotEqualOperator { l: _ }, Self::NotEqualOperator { l: _ })
+            | (Self::Leq { l: _ }, Self::Leq { l: _ })
+            | (Self::Geq { l: _ }, Self::Geq { l: _ })
+            | (Self::ShiftLeft { l: _ }, Self::ShiftLeft { l: _ })
+            | (Self::ShiftRight { l: _ }, Self::ShiftRight { l: _ })
+            | (Self::Sizeof { l: _ }, Self::Sizeof { l: _ })
+            | (Self::Namespace { l: _ }, Self::Namespace { l: _ })
+            | (Self::Struct { l: _ }, Self::Struct { l: _ })
+            | (Self::Fn { l: _ }, Self::Fn { l: _ })
+            | (Self::SelfKey { l: _ }, Self::SelfKey { l: _ })
+            | (Self::If { l: _ }, Self::If { l: _ })
+            | (Self::Else { l: _ }, Self::Else { l: _ })
+            | (Self::Loop { l: _ }, Self::Loop { l: _ })
+            | (Self::For { l: _ }, Self::For { l: _ })
+            | (Self::In { l: _ }, Self::In { l: _ })
+            | (Self::Break { l: _ }, Self::Break { l: _ })
+            | (Self::Continue { l: _ }, Self::Continue { l: _ })
+            | (Self::Var { l: _ }, Self::Var { l: _ })
+            | (Self::Val { l: _ }, Self::Val { l: _ })
+            | (Self::Return { l: _ }, Self::Return { l: _ })
+            | (Self::Unsigned { l: _ }, Self::Unsigned { l: _ })
+            | (Self::IntKey { l: _ }, Self::IntKey { l: _ })
+            | (Self::StrKey { l: _ }, Self::StrKey { l: _ })
+            | (Self::BoolKey { l: _ }, Self::BoolKey { l: _ }) => true,
             (Self::Int { int: l_int, l: _ }, Self::Int { int: r_int, l: _ }) => l_int == r_int,
             (Self::Str { str: l_str, l: _ }, Self::Str { str: r_str, l: _ }) => l_str == r_str,
             (Self::Bool { bool: l_bool, l: _ }, Self::Bool { bool: r_bool, l: _ }) => {
@@ -195,33 +222,6 @@ impl PartialEq for Token {
             (Self::Identifier { id: l_id, l: _ }, Self::Identifier { id: r_id, l: _ }) => {
                 l_id == r_id
             }
-            (Self::LogicalOr { l: _ }, Self::LogicalOr { l: _ }) => true,
-            (Self::LogicalAnd { l: _ }, Self::LogicalAnd { l: _ }) => true,
-            (Self::EqualOperator { l: _ }, Self::EqualOperator { l: _ }) => true,
-            (Self::NotEqualOperator { l: _ }, Self::NotEqualOperator { l: _ }) => true,
-            (Self::Leq { l: _ }, Self::Leq { l: _ }) => true,
-            (Self::Geq { l: _ }, Self::Geq { l: _ }) => true,
-            (Self::ShiftLeft { l: _ }, Self::ShiftLeft { l: _ }) => true,
-            (Self::ShiftRight { l: _ }, Self::ShiftRight { l: _ }) => true,
-            (Self::Sizeof { l: _ }, Self::Sizeof { l: _ }) => true,
-            (Self::Namespace { l: _ }, Self::Namespace { l: _ }) => true,
-            (Self::Struct { l: _ }, Self::Struct { l: _ }) => true,
-            (Self::Fn { l: _ }, Self::Fn { l: _ }) => true,
-            (Self::SelfKey { l: _ }, Self::SelfKey { l: _ }) => true,
-            (Self::If { l: _ }, Self::If { l: _ }) => true,
-            (Self::Else { l: _ }, Self::Else { l: _ }) => true,
-            (Self::Loop { l: _ }, Self::Loop { l: _ }) => true,
-            (Self::For { l: _ }, Self::For { l: _ }) => true,
-            (Self::In { l: _ }, Self::In { l: _ }) => true,
-            (Self::Break { l: _ }, Self::Break { l: _ }) => true,
-            (Self::Continue { l: _ }, Self::Continue { l: _ }) => true,
-            (Self::Var { l: _ }, Self::Var { l: _ }) => true,
-            (Self::Val { l: _ }, Self::Val { l: _ }) => true,
-            (Self::Return { l: _ }, Self::Return { l: _ }) => true,
-            (Self::Unsigned { l: _ }, Self::Unsigned { l: _ }) => true,
-            (Self::IntKey { l: _ }, Self::IntKey { l: _ }) => true,
-            (Self::StrKey { l: _ }, Self::StrKey { l: _ }) => true,
-            (Self::BoolKey { l: _ }, Self::BoolKey { l: _ }) => true,
             _ => false,
         }
     }
