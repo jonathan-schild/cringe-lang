@@ -1,6 +1,6 @@
 use std::rc::Rc;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct Location {
     pub l: usize,
     pub c: usize,
@@ -13,6 +13,10 @@ impl Location {
     }
 
     pub fn next_symbol(&mut self) {
+        todo!()
+    }
+
+    pub fn update_symbol(&mut self, _index: usize) {
         todo!()
     }
 }
@@ -51,7 +55,6 @@ pub enum Token {
     Str { str: String, l: Location },
     Bool { bool: bool, l: Location },
     Identifier { id: String, l: Location },
-    // TODO
     // Composed symbols
     LogicalOr { l: Location },
     LogicalAnd { l: Location },
