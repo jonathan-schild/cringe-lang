@@ -55,7 +55,7 @@ impl<R: BufRead> Lexer<R> {
             } else
             // Scan int literal
             if c.is_ascii_digit() {
-                self.scan_int_literal(&mut line, token_stream);
+                self.scan_int_literal(&mut line, token_stream)?;
             } else
             // Scan punctuation
             if c.is_ascii_punctuation() {
@@ -167,10 +167,51 @@ impl<R: BufRead> Lexer<R> {
 
     fn scan_int_literal(
         &mut self,
-        _line: &mut Peekable<Chars>,
-        _token_stream: &mut VecDeque<Token>,
-    ) {
-        todo!()
+        line: &mut Peekable<Chars>,
+        token_stream: &mut VecDeque<Token>,
+    ) -> Result<(), Error> {
+        let mut str = String::new();
+        self.location.next_symbol();
+        line.next();
+
+        let mut radix = None;
+        while let Some(c) = line.peek() {
+            if radix.is_none() {
+                if *c == 'x' || *c == 'X' {
+                    radix = Some(16);
+                } else if *c == 'o' || *c == 'O' {
+                    radix = Some(8);
+                } else if *c == 'b' || *c == 'B' {
+                    radix = Some(2);
+                } else if c.is_ascii_digit() {
+                    radix = Some(10);
+                    str.push(*c);
+                } else {
+                    return Err(Error::UnexpectedSymbol(*c, self.location.clone()));
+                }
+                self.location.next_symbol();
+                line.next();
+            } else {
+                if *c == '_' {
+                    self.location.next_symbol();
+                    line.next();
+                } else {
+                    if c.is_digit(unsafe { radix.unwrap_unchecked() }) {
+                        str.push(*c);
+                        self.location.next_symbol();
+                        line.next();
+                    } else {
+                        token_stream.push_back(Token::Int {
+                            int: str.parse()?,
+                            l: self.location.clone(),
+                        });
+                        return Ok(());
+                    }
+                }
+            }
+        }
+
+        return Err(Error::UnexpectedEOF(self.location.clone()));
     }
 
     fn scan_string_literal(
@@ -207,11 +248,11 @@ impl<R: BufRead> Lexer<R> {
                         "Multiline Strings not supported @ {} {}; {}",
                         self.location.f, self.location.l, self.location.c
                     );
-                    return Err(Error::UnexpectedLF);
+                    return Err(Error::UnexpectedLF(self.location.clone()));
                 }
             }
         }
 
-        return Err(Error::UnexpectedEOF);
+        return Err(Error::UnexpectedEOF(self.location.clone()));
     }
 }

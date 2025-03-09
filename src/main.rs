@@ -7,12 +7,13 @@
 // #![warn(clippy::missing_docs_in_private_items)]
 #![cfg_attr(debug_assertions, allow(dead_code, unused_imports))]
 
-use std::io;
+use std::{io, num::ParseIntError};
 
 use log::info;
 use thiserror::Error;
 
 use build_info::build_info;
+use tokens::Location;
 
 mod build_info;
 mod lexer;
@@ -27,8 +28,12 @@ pub fn main() {
 enum Error {
     #[error(transparent)]
     Io(#[from] io::Error),
+    #[error(transparent)]
+    ParseInt(#[from] ParseIntError),
+    #[error("Unexpected symbol {0}")]
+    UnexpectedSymbol(char, Location),
     #[error("Unexpected EOF")]
-    UnexpectedEOF,
+    UnexpectedEOF(Location),
     #[error("Unexpected LF")]
-    UnexpectedLF,
+    UnexpectedLF(Location),
 }
