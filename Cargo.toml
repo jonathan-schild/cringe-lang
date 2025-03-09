@@ -1,10 +1,10 @@
 [package]
-name = "mylang"
+name = "cringe-lang"
 version = "0.0.0-wip"
 edition = "2024"
 description = "N/A"
 readme = "README.md"
-repository = "N/A"
+repository = "https://github.com/jonathan-schild/cringe-lang.git"
 license = "EUPL-1.2"
 publish = false
 

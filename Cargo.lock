@@ -68,6 +68,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5b63caa9aa9397e2d9480a9b13673856c78d8ac123288526c37d7839f2a86990"
 
 [[package]]
+name = "cringe-lang"
+version = "0.0.0-wip"
+dependencies = [
+ "env_logger",
+ "log",
+ "thiserror",
+]
+
+[[package]]
 name = "env_filter"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -113,15 +122,6 @@ name = "memchr"
 version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
-
-[[package]]
-name = "mylang"
-version = "0.0.0-wip"
-dependencies = [
- "env_logger",
- "log",
- "thiserror",
-]
 
 [[package]]
 name = "once_cell"
