@@ -400,7 +400,10 @@ mod test {
         io::{BufReader, Cursor},
     };
 
-    use crate::{Error, tokens::Location};
+    use crate::{
+        Error,
+        tokens::{Location, Token},
+    };
 
     use super::Lexer;
 
@@ -432,7 +435,25 @@ mod test {
         let mut token_stream = VecDeque::new();
 
         lexer.scan_string_literal(&mut input_string_0, &mut token_stream)?;
+
+        assert_eq!(
+            token_stream.pop_front().unwrap(),
+            Token::Str {
+                str: String::from("A simple literal with nothing special!"),
+                l: Default::default()
+            }
+        );
+
         lexer.scan_string_literal(&mut input_string_1, &mut token_stream)?;
+
+        assert_eq!(
+            token_stream.pop_front().unwrap(),
+            Token::Str {
+                str: String::from("A string literal with some escaped stuff n \\ \" !"),
+                l: Default::default()
+            }
+        );
+
         let Err(Error::UnexpectedEOF(_)) =
             lexer.scan_string_literal(&mut invalid_input_string_2, &mut token_stream)
         else {
