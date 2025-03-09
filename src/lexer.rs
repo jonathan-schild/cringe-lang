@@ -91,42 +91,117 @@ impl<R: BufRead> Lexer<R> {
         }
     }
 
-    fn scan_punctuation(
-        &mut self,
-        line: &mut Peekable<Chars>,
-        _token_stream: &mut VecDeque<Token>,
-    ) {
+    fn scan_punctuation(&mut self, line: &mut Peekable<Chars>, token_stream: &mut VecDeque<Token>) {
+        let Some(c) = line.peek() else { todo!() };
+        let c = *c; // TODO clean that
+
+        let token = match c {
+            ',' => {
+                self.location.next_symbol();
+                line.next();
+                Token::Comma {
+                    l: self.location.clone(),
+                }
+            }
+            ':' => {
+                self.location.next_symbol();
+                line.next();
+                Token::Colon {
+                    l: self.location.clone(),
+                }
+            }
+            ';' => {
+                self.location.next_symbol();
+                line.next();
+                Token::SemiColon {
+                    l: self.location.clone(),
+                }
+            }
+            '.' => {
+                self.location.next_symbol();
+                line.next();
+                Token::Dot {
+                    l: self.location.clone(),
+                }
+            }
+            '!' => {
+                self.location.next_symbol();
+                line.next();
+                Token::Exclamation {
+                    l: self.location.clone(),
+                }
+            }
+            '+' => {
+                self.location.next_symbol();
+                line.next();
+                Token::Plus {
+                    l: self.location.clone(),
+                }
+            }
+            '-' => {
+                self.location.next_symbol();
+                line.next();
+                Token::Dash {
+                    l: self.location.clone(),
+                }
+            }
+            '*' => {
+                self.location.next_symbol();
+                line.next();
+                Token::Asterix {
+                    l: self.location.clone(),
+                }
+            }
+            '/' => {
+                self.location.next_symbol();
+                line.next();
+                Token::Slash {
+                    l: self.location.clone(),
+                }
+            }
+            '%' => {
+                self.location.next_symbol();
+                line.next();
+                Token::Percent {
+                    l: self.location.clone(),
+                }
+            }
+            '{' => {
+                self.location.next_symbol();
+                line.next();
+                Token::LBrace {
+                    l: self.location.clone(),
+                }
+            }
+            '}' => {
+                self.location.next_symbol();
+                line.next();
+                Token::RBrace {
+                    l: self.location.clone(),
+                }
+            }
+            '(' => {
+                self.location.next_symbol();
+                line.next();
+                Token::LPar {
+                    l: self.location.clone(),
+                }
+            }
+            ')' => {
+                self.location.next_symbol();
+                line.next();
+                Token::RPar {
+                    l: self.location.clone(),
+                }
+            }
+            _ => self.scan_composed_punctuation(line),
+        };
+
+        token_stream.push_back(token);
+    }
+
+    fn scan_composed_punctuation(&mut self, line: &mut Peekable<Chars>) -> Token {
         let _ = match line.peek().unwrap() {
-            ',' => Token::Comma {
-                l: self.location.clone(),
-            },
-            ':' => Token::Colon {
-                l: self.location.clone(),
-            },
-            ';' => Token::SemiColon {
-                l: self.location.clone(),
-            },
-            '.' => Token::Dot {
-                l: self.location.clone(),
-            },
-            '!' => Token::Exclamation {
-                l: self.location.clone(),
-            },
-            '+' => Token::Plus {
-                l: self.location.clone(),
-            },
-            '-' => Token::Dash {
-                l: self.location.clone(),
-            },
-            '*' => Token::Asterix {
-                l: self.location.clone(),
-            },
-            '/' => Token::Slash {
-                l: self.location.clone(),
-            },
-            '%' => Token::Percent {
-                l: self.location.clone(),
-            },
             '=' => Token::Equal {
                 l: self.location.clone(),
             },
@@ -145,27 +220,14 @@ impl<R: BufRead> Lexer<R> {
             '>' => Token::RAngle {
                 l: self.location.clone(),
             },
-            '{' => Token::LBrace {
-                l: self.location.clone(),
-            },
-            '}' => Token::RBrace {
-                l: self.location.clone(),
-            },
-            '(' => Token::LPar {
-                l: self.location.clone(),
-            },
-            ')' => Token::RPar {
-                l: self.location.clone(),
-            },
             '[' => Token::LBracket {
                 l: self.location.clone(),
             },
             ']' => Token::RBracket {
                 l: self.location.clone(),
             },
-            _ => panic!(),
+            _ => self.scan_composed_punctuation(line),
         };
-
         todo!()
     }
 
