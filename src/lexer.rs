@@ -3,22 +3,19 @@ use std::{
     rc::Rc,
 };
 
-use crate::tokens::Token;
+use crate::tokens::{Location, Token};
 
 pub struct Lexer<R: BufRead> {
     source: R,
     buf: String,
-    l: usize,
-    c: usize,
-    f: Rc<String>,
+    location: Location,
 }
 
 impl<R: BufRead> Lexer<R> {
     #[allow(clippy::too_many_lines)]
     pub fn next(&mut self) -> Result<Token, ()> {
         if self.buf.is_empty() {
-            self.l += 1;
-            self.c = 0;
+            self.location.next_line();
             self.source.read_line(&mut self.buf).unwrap();
             self.buf = self.buf.chars().rev().collect();
         }
@@ -33,114 +30,70 @@ impl<R: BufRead> Lexer<R> {
 
             break match current {
                 ',' => Token::Comma {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 ':' => Token::Colon {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 ';' => Token::SemiColon {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '.' => Token::Dot {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '!' => Token::Exclamation {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '+' => Token::Plus {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '-' => Token::Dash {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '*' => Token::Asterix {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '/' => Token::Slash {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '%' => Token::Percent {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '=' => Token::Equal {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '&' => Token::Ampersand {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '^' => Token::Head {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '|' => Token::Pipe {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '<' => Token::LAngle {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '>' => Token::RAngle {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '{' => Token::LBrace {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '}' => Token::RBrace {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '(' => Token::LPar {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 ')' => Token::RPar {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '[' => Token::LBracket {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 ']' => Token::RBracket {
-                    l: self.l,
-                    c: self.c,
-                    f: self.f.clone(),
+                    l: self.location.clone(),
                 },
                 '0' => self.lex_int_literal(current),
                 '"' => self.lex_string_literal(current),
@@ -156,6 +109,10 @@ impl<R: BufRead> Lexer<R> {
     }
 
     fn lex_string_literal(&mut self, _current: char) -> Token {
+        todo!()
+    }
+
+    fn lex_composed(&mut self, _current: Token) -> Token {
         todo!()
     }
 
@@ -176,9 +133,7 @@ impl<R: BufRead> Lexer<R> {
 
         Token::Int {
             int,
-            l: self.l,
-            c: self.c,
-            f: self.f.clone(),
+            l: self.location.clone(),
         }
     }
 }
