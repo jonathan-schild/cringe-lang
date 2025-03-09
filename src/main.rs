@@ -27,4 +27,8 @@ pub fn main() {
 enum Error {
     #[error(transparent)]
     Io(#[from] io::Error),
+    #[error("Unexpected EOF")]
+    UnexpectedEOF,
+    #[error("Unexpected LF")]
+    UnexpectedLF,
 }

@@ -5,6 +5,8 @@ use std::{
     str::Chars,
 };
 
+use log::error;
+
 use crate::{
     Error,
     tokens::{Location, Token},
@@ -49,7 +51,7 @@ impl<R: BufRead> Lexer<R> {
             } else
             // Scan string literal
             if c == '"' {
-                self.scan_string_literal(&mut line, token_stream);
+                self.scan_string_literal(&mut line, token_stream)?;
             } else
             // Scan int literal
             if c.is_ascii_digit() {
@@ -173,9 +175,43 @@ impl<R: BufRead> Lexer<R> {
 
     fn scan_string_literal(
         &mut self,
-        _line: &mut Peekable<Chars>,
-        _token_stream: &mut VecDeque<Token>,
-    ) {
-        todo!()
+        line: &mut Peekable<Chars>,
+        token_stream: &mut VecDeque<Token>,
+    ) -> Result<(), Error> {
+        let mut str = String::new();
+        self.location.next_symbol();
+        line.next();
+
+        let mut escape = false;
+        while let Some(c) = line.peek() {
+            if escape {
+                escape = !escape;
+                str.push(*c);
+                self.location.next_symbol();
+                line.next();
+            } else {
+                if *c == '\\' {
+                    escape = !escape;
+                    self.location.next_symbol();
+                    line.next();
+                } else if *c == '"' {
+                    self.location.next_symbol();
+                    line.next();
+                    token_stream.push_back(Token::Str {
+                        str,
+                        l: self.location.clone(),
+                    });
+                    return Ok(());
+                } else if *c == '\n' {
+                    error!(
+                        "Multiline Strings not supported @ {} {}; {}",
+                        self.location.f, self.location.l, self.location.c
+                    );
+                    return Err(Error::UnexpectedLF);
+                }
+            }
+        }
+
+        return Err(Error::UnexpectedEOF);
     }
 }
