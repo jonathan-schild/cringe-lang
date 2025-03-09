@@ -9,7 +9,7 @@ use std::{
     str::Chars,
 };
 
-use log::error;
+use log::{debug, error};
 
 use crate::{
     Error,
@@ -18,7 +18,6 @@ use crate::{
 
 pub struct Lexer<R: BufRead> {
     source: R,
-    buf: String,
     current_location: Location,
     token_location: Location,
 }
@@ -356,8 +355,9 @@ impl<R: BufRead> Lexer<R> {
         line: &mut Peekable<Chars>,
         token_stream: &mut VecDeque<Token>,
     ) -> Result<(), Error> {
-        let mut str = String::new();
+        debug!("Start parsing string literal");
 
+        let mut str = String::new();
         line.next();
 
         let mut escape = false;
@@ -365,13 +365,12 @@ impl<R: BufRead> Lexer<R> {
             if escape {
                 escape = !escape;
                 str.push(*c);
-
                 line.next();
             } else if *c == '\\' {
                 escape = !escape;
-
                 line.next();
             } else if *c == '"' {
+                debug!("Finish parsing string literal str/{str}");
                 line.next();
                 token_stream.push_back(Token::Str {
                     str,
@@ -384,9 +383,68 @@ impl<R: BufRead> Lexer<R> {
                     self.token_location.f, self.token_location.l, self.token_location.c
                 );
                 return Err(Error::UnexpectedLF(self.token_location.clone()));
+            } else {
+                str.push(*c);
+                line.next();
             }
         }
 
         Err(Error::UnexpectedEOF(self.token_location.clone()))
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use std::{
+        collections::VecDeque,
+        io::{BufReader, Cursor},
+    };
+
+    use crate::{Error, tokens::Location};
+
+    use super::Lexer;
+
+    fn test_lexer() -> Lexer<BufReader<std::io::Cursor<&'static str>>> {
+        Lexer {
+            source: BufReader::new(Cursor::new("")),
+            current_location: Location::default(),
+            token_location: Location::default(),
+        }
+    }
+
+    #[test]
+    fn scan_string_literal() -> Result<(), Error> {
+        // env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
+
+        let mut input_string_0 = r#""A simple literal with nothing special!""#.chars().peekable();
+        let mut input_string_1 = r#""A string literal with some escaped stuff \n \\ \" !""#
+            .chars()
+            .peekable();
+        let mut invalid_input_string_2 = r#""A string without an ending!"#.chars().peekable();
+        let mut invalid_input_string_3 = r#"Another invalid string with
+        a line break
+        "#
+        .chars()
+        .peekable();
+
+        let mut lexer = test_lexer();
+
+        let mut token_stream = VecDeque::new();
+
+        lexer.scan_string_literal(&mut input_string_0, &mut token_stream)?;
+        lexer.scan_string_literal(&mut input_string_1, &mut token_stream)?;
+        let Err(Error::UnexpectedEOF(_)) =
+            lexer.scan_string_literal(&mut invalid_input_string_2, &mut token_stream)
+        else {
+            panic!("expected unexpected eof")
+        };
+
+        let Err(Error::UnexpectedLF(_)) =
+            lexer.scan_string_literal(&mut invalid_input_string_3, &mut token_stream)
+        else {
+            panic!("expected unexpected lf")
+        };
+
+        Ok(())
     }
 }

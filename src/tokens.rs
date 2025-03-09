@@ -25,6 +25,7 @@ impl Location {
     }
 }
 
+#[derive(Debug)]
 pub enum Token {
     Unknown { l: Location },
     // Single punctuation symbol
