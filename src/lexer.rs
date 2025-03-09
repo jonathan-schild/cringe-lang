@@ -336,18 +336,17 @@ impl<R: BufRead> Lexer<R> {
                 line.next();
             } else if c.is_digit(radix.unwrap()) {
                 str.push(*c);
-
                 line.next();
             } else {
-                token_stream.push_back(Token::Int {
-                    int: str.parse()?,
-                    l: self.token_location.clone(),
-                });
-                return Ok(());
+                break;
             }
         }
-
-        Err(Error::UnexpectedEOF(self.token_location.clone()))
+        dbg!(&str);
+        token_stream.push_back(Token::Int {
+            int: u64::from_str_radix(&str, radix.unwrap()).unwrap(),
+            l: self.token_location.clone(),
+        });
+        Ok(())
     }
 
     fn scan_string_literal(
@@ -465,6 +464,62 @@ mod test {
         else {
             panic!("expected unexpected lf")
         };
+
+        Ok(())
+    }
+
+    #[test]
+    fn scan_int_literal() -> Result<(), Error> {
+        // env_logger::init_from_env(env_logger::Env::new().default_filter_or("debug"));
+
+        let mut input_string_0 = r#"012345"#.chars().peekable();
+        let mut input_string_1 = r#"0xABCD"#.chars().peekable();
+        let mut input_string_2 = r#"0b01011101"#.chars().peekable();
+        let mut input_string_3 = r#"0o7654"#.chars().peekable();
+
+        let mut lexer = test_lexer();
+
+        let mut token_stream = VecDeque::new();
+
+        lexer.scan_int_literal(&mut input_string_0, &mut token_stream)?;
+
+        assert_eq!(
+            token_stream.pop_front().unwrap(),
+            Token::Int {
+                int: 012345,
+                l: Default::default()
+            }
+        );
+
+        lexer.scan_int_literal(&mut input_string_1, &mut token_stream)?;
+
+        assert_eq!(
+            token_stream.pop_front().unwrap(),
+            Token::Int {
+                int: 0xABCD,
+                l: Default::default()
+            }
+        );
+
+        lexer.scan_int_literal(&mut input_string_2, &mut token_stream)?;
+
+        assert_eq!(
+            token_stream.pop_front().unwrap(),
+            Token::Int {
+                int: 0b01011101,
+                l: Default::default()
+            }
+        );
+
+        lexer.scan_int_literal(&mut input_string_3, &mut token_stream)?;
+
+        assert_eq!(
+            token_stream.pop_front().unwrap(),
+            Token::Int {
+                int: 0o7654,
+                l: Default::default()
+            }
+        );
 
         Ok(())
     }
