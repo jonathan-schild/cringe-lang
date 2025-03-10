@@ -2,30 +2,20 @@
  * Copyright (c) 2025 Jonathan "Nath" Schild. Licensed under the EUPL-1.2
  */
 
-use std::rc::Rc;
-
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Location {
     pub l: usize,
     pub c: usize,
-    pub f: Rc<String>,
+    pub fid: usize,
 }
 
-impl Location {
-    pub fn next_line(&mut self) {
-        todo!()
-    }
-
-    pub fn next_symbol(&mut self) {
-        todo!()
-    }
-
-    pub fn update_symbol(&mut self, _index: usize) {
-        todo!()
-    }
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RichToken {
+    token: Token,
+    location: Location,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Token {
     Unknown,
     // Single punctuation symbol

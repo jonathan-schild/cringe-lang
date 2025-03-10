@@ -2,23 +2,15 @@
  * Copyright (c) 2025 Jonathan "Nath" Schild. Licensed under the EUPL-1.2
  */
 
-use std::{
-    collections::VecDeque,
-    io::BufRead,
-    iter::{Enumerate, Peekable, SkipWhile},
-    str::Chars,
-};
+use std::{collections::VecDeque, io::BufRead};
 
 use lexer_gut::scan_line;
 use lexer_state::LexerState;
-use log::{debug, error};
 
 use crate::{
     Error,
-    tokens::{Location, Token},
+    parser::tokens::{Location, Token},
 };
-
-use super::tokens;
 
 mod lexer_gut;
 mod lexer_state;
