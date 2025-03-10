@@ -5,7 +5,7 @@
 #![warn(clippy::cargo)]
 #![warn(clippy::pedantic)]
 // #![warn(clippy::missing_docs_in_private_items)]
-// #![cfg_attr(debug_assertions, allow(dead_code, unused_imports))]
+#![cfg_attr(debug_assertions, allow(dead_code, unused_imports))]
 
 use std::{io, num::ParseIntError};
 

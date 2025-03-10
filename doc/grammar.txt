@@ -1,7 +1,7 @@
 keywords: namespace, struct, fn, self, if, else, loop, for, in, break, continue, var, val, sizeof, return,
             unsigned, int, str, bool, true, false
 
-program         ::= scope | struct | function
+program         ::= ( scope | struct | function )+
 
 scope           ::= 'namespace' identifier '{' program '}'
 struct          ::= 'struct' identifier '{' member ( ',' member )* '}'
@@ -19,7 +19,7 @@ oct_digit       ::= bin_digit | '2' - '7'
 bin_digit       ::= '0' | '1'
 
 body            ::= statement ( ';' statement )*
-statement       ::= compound | if | loop | for | return | break | continue | var_decl | const_decl | assign
+statement       ::= compound | if | loop | for | return | break | continue | var_decl | val_decl | assign
 compound        ::= '{' body '}'
 if              ::= 'if' expression '{' body '}' ( 'else' ( if | '{' body '}' ) )?
 loop            ::= ( "'" identifier ':' )? 'loop' '{' body '}'
@@ -29,7 +29,7 @@ return          ::= 'return' statement? ';'
 break           ::= 'break' identifier? ( statement ';' )?
 continue        ::= 'continue' identifier? ';'
 var_decl        ::= 'var' identifier ( ':' type )? ( '=' statement )? ';'
-const_decl      ::= 'val' identifier ':' type ( '=' statement )? ';'
+val_decl        ::= 'val' identifier ':' type ( '=' statement )? ';'
 assign          ::= '*'* identifier ( '[' expression ']' )* '=' statement ';'
 
 expression      ::= logical_or
